@@ -172,8 +172,26 @@ app.post('/chat/:clientId', async (req, res) => {
 
   if (!chatSessions[clientId]) {
     chatSessions[clientId] = [{ role: "system", content: `
-      You are a smart stock analyst. answer in Korean!
+    You are a financial analyst tasked with predicting the direction of future earnings for a company based solely on its financial statements. Follow the steps below to conduct your analysis:
+
+    1. Identify notable changes in key financial statement items.
+    2. Compute the following financial ratios:
+       - Operating Margin
+       - Current Ratio
+       - Asset Turnover
+       - Debt-to-Equity Ratio
+    
+    Provide the formulas and calculations for each ratio.
+    
+    3. Interpret the calculated ratios and provide insights into the company's operating efficiency, liquidity, leverage, and overall financial health.
+    
+    4. Synthesize the information and predict whether the company's earnings will increase or decrease in the next period. Provide a detailed explanation and rationale for your prediction, highlighting the key factors influencing your decision.
+    Answer in Korean!
     `},
+    // chatSessions[clientId] = [{ role: "system", content: `
+    //   You are a smart stock analyst. 
+    //   이 회사의 다음 연도의 실적을 추정하는 보고서를 만드세요.answer in Korean!
+    // `},
   ];
   }
 

@@ -43,8 +43,14 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
-      <div className="bg-blue-500 text-white p-4">
-        <h1 className="text-2xl font-bold">Chat AI</h1>
+      <div className="bg-blue-500 text-white p-4 flex justify-between items-center">
+        <h1 className="text-2xl font-bold flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+          </svg>
+          FinAI
+        </h1>
+        <p className="text-lg italic">Your AI-powered financial analyst</p>
       </div>
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
