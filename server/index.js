@@ -87,7 +87,7 @@ async function getSingleCompanyKeyFinancials({ corp_code, bsns_year, reprt_code,
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(data.list);
 
-    return JSON.stringify(csv).replace("\"", "")
+    return JSON.stringify(csv).replace(/\"/g, '')
   } catch (error) {
     // console.error("Error fetching financial statement:", error);
     return "Error fetching financial statement"
@@ -116,7 +116,7 @@ async function getCompanyIndex({ corp_code, bsns_year, reprt_code, idx_cl_code }
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(data.list);
 
-    return JSON.stringify(csv).replace("\"", "")
+    return JSON.stringify(csv).replace(/\"/g, '')
   } catch (error) {
     console.error("Error fetching company index:", error);
     return "Error fetching company index";
@@ -139,7 +139,8 @@ async function getMultiAccount({ corp_code, bsns_year, reprt_code }) {
     }
 
     const fields = [
-      'rcept_no', 'bsns_year', 'stock_code', 'reprt_code', 'account_nm', 
+      // 'rcept_no', 'bsns_year', 'stock_code', 'reprt_code', 
+      'account_nm', 
       'fs_div', 'fs_nm', 'sj_div', 'sj_nm', 'thstrm_nm', 'thstrm_dt', 
       'thstrm_amount', 'thstrm_add_amount', 'frmtrm_nm', 'frmtrm_dt', 
       'frmtrm_amount', 'frmtrm_add_amount', 'bfefrmtrm_nm', 'bfefrmtrm_dt', 
@@ -149,7 +150,7 @@ async function getMultiAccount({ corp_code, bsns_year, reprt_code }) {
     const json2csvParser = new Parser({ fields });
     const csv = json2csvParser.parse(data.list);
 
-    return JSON.stringify(csv).replace("\"", "")
+    return JSON.stringify(csv).replace(/\\\"/g, '')
   } catch (error) {
     console.error("Error fetching multi account:", error);
     return "Error fetching multi account";

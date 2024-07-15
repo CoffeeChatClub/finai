@@ -12,6 +12,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -32,6 +33,12 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus();
+    }
+  }, [isLoading]);
+
   const saveApiKey = () => {
     localStorage.setItem('openaiApiKey', apiKey);
     setShowSettings(false);
@@ -45,7 +52,7 @@ function App() {
       setMessages(prevMessages => [...prevMessages, `You: ${input}`]);
       setInput('');
 
-      const response = await axios.post(`http://localhost:3000/chat/${clientId}`, {
+      const response = await axios.post(`${import.meta.env.VITE_SERVER_ADDRESS}/chat/${clientId}`, {
         message: input,
         apiKey: apiKey
       });
@@ -128,6 +135,7 @@ function App() {
       </div>
       <div className="bg-white p-4 flex">
         <input
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
