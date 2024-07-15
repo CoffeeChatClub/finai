@@ -19,6 +19,10 @@ jobs:
         npm install
         npm run build
 
+    - name: Create .nojekyll file
+      run: |
+        touch client/dist/.nojekyll
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
