@@ -12,6 +12,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [gptModel, setGptModel] = useState('gpt-3.5-turbo');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,12 @@ function App() {
     if (storedApiKey) {
       setApiKey(storedApiKey);
     }
+
+    // Load GPT model from local storage
+    const storedGptModel = localStorage.getItem('gptModel');
+    if (storedGptModel) {
+      setGptModel(storedGptModel);
+    }
   }, []);
 
   useEffect(() => {
@@ -39,8 +46,9 @@ function App() {
     }
   }, [isLoading]);
 
-  const saveApiKey = () => {
+  const saveSettings = () => {
     localStorage.setItem('openaiApiKey', apiKey);
+    localStorage.setItem('gptModel', gptModel);
     setShowSettings(false);
   };
 
@@ -54,7 +62,8 @@ function App() {
 
       const response = await axios.post(`${import.meta.env.VITE_SERVER_ADDRESS}/chat/${clientId}`, {
         message: input,
-        apiKey: apiKey
+        apiKey: apiKey,
+        model: gptModel
       });
 
       setMessages(prevMessages => [...prevMessages, `AI: ${response.data}`]);
@@ -73,7 +82,7 @@ function App() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
           </svg>
-          FinAI
+          Finai
         </h1>
         <div className="flex items-center">
           {/* <p className="text-lg italic mr-4">Your AI-powered financial analyst</p> */}
@@ -101,6 +110,18 @@ function App() {
               className="w-full border rounded px-3 py-2 mb-4"
               placeholder="Enter OpenAI API Key"
             />
+            <label htmlFor="gptModel" className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+              GPT Model
+            </label>
+            <select
+              id="gptModel"
+              value={gptModel}
+              onChange={(e) => setGptModel(e.target.value)}
+              className="w-full border rounded px-3 py-2 mb-4"
+            >
+              <option value="gpt-3.5-turbo">GPT-3.5-Turbo</option>
+              <option value="gpt-4o">GPT-4o</option>
+            </select>
             <div className="flex justify-end">
               <button
                 onClick={() => setShowSettings(false)}
@@ -109,7 +130,7 @@ function App() {
                 Cancel
               </button>
               <button
-                onClick={saveApiKey}
+                onClick={saveSettings}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
               >
                 Save

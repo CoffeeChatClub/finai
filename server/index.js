@@ -159,6 +159,7 @@ async function getMultiAccount({ corp_code, bsns_year, reprt_code }) {
 
 app.post('/chat/:clientId', async (req, res) => {
   const clientId = req.params.clientId;
+  const model = req.body.model;
   const userMessage = req.body.message;
   const clientApiKey = req.body.apiKey; // New: Get API key from request
 
@@ -171,7 +172,7 @@ app.post('/chat/:clientId', async (req, res) => {
     apiKey: clientApiKey,
   });
 
-  console.log(clientId)
+  console.log(model)
 
   if (!chatSessions[clientId]) {
     chatSessions[clientId] = [{ role: "system", content: `
@@ -199,9 +200,9 @@ app.post('/chat/:clientId', async (req, res) => {
   while (continueConversation) {
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model,
         messages: chatSessions[clientId],
-        tools: tools,
+        tools,
         tool_choice: "auto",
       });
       const responseMessage = response.choices[0].message;
