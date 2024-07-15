@@ -2,23 +2,40 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import React from 'react';
+import { FiSettings } from 'react-icons/fi';
 
 function App() {
   const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [clientId, setClientId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     // Generate a unique client ID when the component mounts
     setClientId(Math.random().toString(36).substring(7));
+    
+    // Load API key from local storage
+    const storedApiKey = localStorage.getItem('openaiApiKey');
+    if (storedApiKey) {
+      setApiKey(storedApiKey);
+    }
   }, []);
+
   useEffect(() => {
     // Scroll to bottom of messages
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const saveApiKey = () => {
+    localStorage.setItem('openaiApiKey', apiKey);
+    setShowSettings(false);
+  };
 
   const sendMessage = async () => {
     if (input.trim() === '' || isLoading) return;
@@ -29,7 +46,8 @@ function App() {
       setInput('');
 
       const response = await axios.post(`http://localhost:3000/chat/${clientId}`, {
-        message: input
+        message: input,
+        apiKey: apiKey
       });
 
       setMessages(prevMessages => [...prevMessages, `AI: ${response.data}`]);
@@ -50,8 +68,50 @@ function App() {
           </svg>
           FinAI
         </h1>
-        <p className="text-lg italic">Your AI-powered financial analyst</p>
+        <div className="flex items-center">
+          {/* <p className="text-lg italic mr-4">Your AI-powered financial analyst</p> */}
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            <FiSettings /> 
+          </button>
+        </div>
       </div>
+      
+      {showSettings && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Settings</h2>
+            <label htmlFor="apiKey" className="block text-sm font-medium text-gray-700 mb-1">
+              OpenAI API Key
+            </label>
+            <input
+              id="apiKey"
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full border rounded px-3 py-2 mb-4"
+              placeholder="Enter OpenAI API Key"
+            />
+            <div className="flex justify-end">
+              <button
+                onClick={() => setShowSettings(false)}
+                className="mr-2 bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveApiKey}
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((msg, index) => (
           <div key={index} className={`mb-4 ${msg.startsWith('You:') ? 'text-right' : 'text-left'}`}>

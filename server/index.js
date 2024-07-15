@@ -18,11 +18,6 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
-// Initialize OpenAI API
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 // In-memory storage for chat sessions
 const chatSessions = {};
 
@@ -161,14 +156,21 @@ async function getMultiAccount({ corp_code, bsns_year, reprt_code }) {
   }
 }
 
-
-
-
-
-// API endpoint to send a message
 app.post('/chat/:clientId', async (req, res) => {
   const clientId = req.params.clientId;
   const userMessage = req.body.message;
+  const clientApiKey = req.body.apiKey; // New: Get API key from request
+
+  if (!clientApiKey) {
+    return res.status(400).json({ error: 'OpenAI API key is required' });
+  }
+
+  // Initialize OpenAI with the client's API key
+  const openai = new OpenAI({
+    apiKey: clientApiKey,
+  });
+
+  console.log(clientId)
 
   if (!chatSessions[clientId]) {
     chatSessions[clientId] = [{ role: "system", content: `
@@ -187,26 +189,19 @@ app.post('/chat/:clientId', async (req, res) => {
     
     4. Synthesize the information and predict whether the company's earnings will increase or decrease in the next period. Provide a detailed explanation and rationale for your prediction, highlighting the key factors influencing your decision.
     Answer in Korean!
-    `},
-    // chatSessions[clientId] = [{ role: "system", content: `
-    //   You are a smart stock analyst. 
-    //   이 회사의 다음 연도의 실적을 추정하는 보고서를 만드세요.answer in Korean!
-    // `},
-  ];
+    `}];
   }
 
   chatSessions[clientId].push({ role: 'user', content: userMessage });
 
-  // try {
-
-    let continueConversation = true;
-    while (continueConversation) {
+  let continueConversation = true;
+  while (continueConversation) {
+    try {
       const response = await openai.chat.completions.create({
-          // model: "gpt-4o",
-          model: "gpt-3.5-turbo",
-          messages: chatSessions[clientId],
-          tools: tools,
-          tool_choice: "auto", // auto is default, but we'll be explicit
+        model: "gpt-3.5-turbo",
+        messages: chatSessions[clientId],
+        tools: tools,
+        tool_choice: "auto",
       });
       const responseMessage = response.choices[0].message;
 
@@ -238,20 +233,16 @@ app.post('/chat/:clientId', async (req, res) => {
           }); 
         }
       } else if (!chatSessions[clientId][chatSessions[clientId].length - 1].tool_calls) {
-          // chatSessions[clientId].push({ role: 'assistant', content: aiMessage });
           chatSessions[clientId].push(responseMessage); // extend conversation with assistant's reply
           continueConversation = false; // exit the loop if no function call is needed
       }
+    } catch (error) {
+      console.error("OpenAI API error:", error);
+      return res.status(500).json({ error: "Error communicating with OpenAI API" });
     }
-    
-    isConversationInProgress = false;
+  }
 
-    // const aiMessage = response.data.choices[0].message.content;
-
-    res.send(chatSessions[clientId][chatSessions[clientId].length - 1].content);
-  // } catch (error) {
-  //   res.status(500).json({ error:error });
-  // }
+  res.send(chatSessions[clientId][chatSessions[clientId].length - 1].content);
 });
 
 app.listen(port, () => {
