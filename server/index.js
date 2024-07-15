@@ -247,6 +247,12 @@ app.post('/chat/:clientId', async (req, res) => {
   res.send(chatSessions[clientId][chatSessions[clientId].length - 1].content);
 });
 
+
+// Health check endpoint for AWS
+app.get('/healthcheck', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
