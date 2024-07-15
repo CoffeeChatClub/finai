@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import React from 'react';
+// import React from 'react';
 import { FiSettings } from 'react-icons/fi';
 
 function App() {
